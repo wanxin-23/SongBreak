@@ -10,17 +10,19 @@ sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
 app = Flask(__name__)
     
-@app.route('/')
-def form():
-    return render_template('form.html')
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    song = request.form['song']
-    results = sp.search(q=song, limit=20)
-    for idx, track in enumerate(results['tracks']['items']):
-        print(idx, track['name'])
-    return "thank you!"
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        query = request.form['query']
+        results = sp.search(q=query, type='track', limit=10)
+        tracks = []
+        for track in results['tracks']['items']:
+            track_info = {
+                'name': track['name'],
+                'artist': track['artists'][0]['name']}
+            tracks.append(track_info)
+        return render_template('results.html', tracks=tracks, query=query)
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
