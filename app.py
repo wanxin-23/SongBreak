@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, session, url_for, redirect
-import os
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="dfb3a6aafe8e43f584f850a55ca600a5", 
                                                       client_secret="2f383981757f410289d8c16106b017d2",
