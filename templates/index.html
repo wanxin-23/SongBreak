@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>SongBreak</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <header class="header-logo"></header>
+</head>
+<body>
+    <h1 class = "entry">Key in a phrase and get a playlist in return! </h1>
+    <form action="/results" method="post">
+        <div class = "textbox-container">
+            <input type="text" name="query" class = "textbox" placeholder="Enter phrase">
+            <button type="submit" class = "button1">Search</button>
+        </div>
+    </form>
+</body>
+</html>

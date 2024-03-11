@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>URL page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<div class="centered-text">
+    <p>Find your playlist: <a id="url" href="https://open.spotify.com/">https://open.spotify.com/</a></p>
+</div>
+<form action="{{ url_for('new_page') }}" method="post">
+    <button id="redirect" class="button3" type="submit">Return to Homepage</button>
+</form>
+
+</body>
+</html>

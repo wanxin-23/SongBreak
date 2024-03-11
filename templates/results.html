@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>Spotify Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h2 class="subtitle">Results for "{{ query }}"</h2>
+    <table class = "searchtable">
+        <thead>
+            <tr>
+                <th>Song</th>
+                <th>Artist</th>
+            </tr>
+        </thead>
+        {%for track in tracks%}
+        <tbody>
+            <tr>
+                <td>{{track['name']}}</td>
+                <td>{{track['artist']}}</td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+    <form action="/create" method="post">
+        <input type="hidden" name="query" value="{{ query }}">
+        <button class="button2" type="submit">Create a playlist</button>
+    </form>
+</body>
+</html>
