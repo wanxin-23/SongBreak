@@ -1,15 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, url_for, redirect
 import os
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-client_credentials_manager = SpotifyClientCredentials(client_id="5d709f1e73ca41149dc6c52717bf42b8", 
-                                                      client_secret="30215aa3aef043fd85e84f8d80faa776")
-sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
-
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="dfb3a6aafe8e43f584f850a55ca600a5", 
+                                                      client_secret="2f383981757f410289d8c16106b017d2",
+                                               redirect_uri="http://localhost:8888/callback",
+                                               scope="playlist-modify-public"))
 
 app = Flask(__name__)
-    
+
 def remove_bracket(s):
     bracket_index = s.find('(')
     if bracket_index != -1:
@@ -18,30 +18,81 @@ def remove_bracket(s):
     
 def search(query):
     offset_value = 0
-    track_list = []
     while offset_value <= 900:
-        results = sp.search(q=query, limit=50, offset=offset_value)
+        results = sp.search(q=query,type="track,artist", limit=50, offset=offset_value)
         for track in results['tracks']['items']:
             track_info = {'name': track['name'], 
                           'artist': track['artists'][0]['name']}
             if (track_info['name'].lower() == query.lower()):
                 return track_info
-            else:
-                break
         offset_value += 50
 
-@app.route('/', methods=['GET', 'POST'])
+def get_uri(query):
+    offset_value = 0
+    while offset_value <= 900:
+        results = sp.search(q=query,type="track,artist", limit=50, offset=offset_value)
+        for track in results['tracks']['items']:
+            track_info = {'name': track['name'], 
+                          'artist': track['artists'][0]['name']}
+            if (track_info['name'].lower() == query.lower()):
+                return track['uri']
+        offset_value += 50
+
+def create_playlist(playlist_name, songs_uris):
+    user_id = sp.me()['id']
+    playlist = sp.user_playlist_create(user=user_id, name=playlist_name, public=True)
+    playlist_id = playlist['id']
+    sp.playlist_add_items(playlist_id, songs_uris)
+    return 'Playlist created!'
+
+uris = []
+
+@app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/results', methods=['POST'])
+def results():
     if request.method == 'POST':
         query = request.form['query']
         words = query.split(" ")
         tracks = []
-        for word in words: 
+        i = 0
+        global uris
+        word = words[i]
+        while i < len(words):
             results = search(word)
-            tracks.append(results)
+            uri = get_uri(word)
+            if results:
+                tracks.append(results)
+                uris.append(uri)
+                i += 1
+                if i < len(words):
+                    word = words[i]
+                else:
+                    break
+            else:
+                if i != (len(words) -1):
+                    word = word + " " + words[i+1]
+                    i += 1
+                else:
+                    tracks.append({'name': 'NOT FOUND', 'artist': 'NOT FOUND'})
+                    return render_template('results.html', tracks=tracks, query=query)
         return render_template('results.html', tracks=tracks, query=query)
-    return render_template('index.html')
 
+@app.route('/create', methods=['POST'])
+def create():
+    global uris
+    if request.method == 'POST':
+        query = request.form['query']  
+    create_playlist(query, uris)
+    return render_template('url.html')
+
+@app.route('/new_page', methods=['POST'])
+def new_page():
+    return redirect(url_for('index'))  
+        
 if __name__ == '__main__':
     app.run(debug=True)
+
 
