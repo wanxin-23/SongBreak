@@ -8,6 +8,7 @@
     <table class = "searchtable">
         <thead>
             <tr>
+                <th> </th>
                 <th>Song</th>
                 <th>Artist</th>
             </tr>
@@ -15,15 +16,13 @@
         {%for track in tracks%}
         <tbody>
             <tr>
+                <td><img src="{{track['artwork']}}" alt="Album Artwork"></td>
                 <td>{{track['name']}}</td>
                 <td>{{track['artist']}}</td>
             </tr>
         </tbody>
         {% endfor %}
     </table>
-    <form action="/create" method="post">
-        <input type="hidden" name="query" value="{{ query }}">
-        <button class="button2" type="submit">Create a playlist</button>
-    </form>
 </body>
 </html>
+
